@@ -1,4 +1,4 @@
-package com.example.facebook_dating;
+package com.fbd;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
