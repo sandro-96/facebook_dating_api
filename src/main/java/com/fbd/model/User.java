@@ -1,20 +1,31 @@
 package com.fbd.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collation = "user")
+@Document(collection  = "user")
 @Builder
 public class User {
     @Id
     private String id;
+    private String userName;
     private String name;
-    private int role;
+    private String gender;
+    private String birthDay;
+    private String location;
+    private String password;
+    @Builder.Default
+    private int role = 2;
+    @JsonProperty("key")
+    public String getKey() {
+        return id;
+    }
 }
