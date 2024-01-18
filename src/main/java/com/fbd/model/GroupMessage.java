@@ -1,7 +1,6 @@
 package com.fbd.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fbd.enums.GroupType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,29 +10,21 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection  = "group")
+@Document(collection  = "groupMessage")
 @Builder
-public class Group {
+public class GroupMessage {
     @Id
     private String id;
-    private String name;
+    private String groupId;
+    private String fromUserId;
+    private String message;
     @Builder.Default
-    private List<String> memberIds = new ArrayList<>();
-    @Builder.Default
-    private GroupType type = GroupType.PUBLIC;
-    private String description;
-    private String createdBy;
-    @JsonProperty("memberCount")
-    public long getMemberCount() {
-        return memberIds.size();
-    }
+    private int role = 2;
     @JsonProperty("key")
     public String getKey() {
         return id;

@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Date;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,4 +30,8 @@ public class User {
     public String getKey() {
         return id;
     }
+    @CreatedDate
+    private Date createdOn;
+    @LastModifiedDate
+    private Date updatedOn;
 }
