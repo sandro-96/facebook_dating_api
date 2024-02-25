@@ -1,6 +1,8 @@
 package com.fbd.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fbd.enums.RegistrationSource;
+import com.fbd.enums.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,14 +20,16 @@ import java.util.Date;
 public class User {
     @Id
     private String id;
-    private String userName;
     private String name;
+    private String email;
     private String gender;
     private String birthDay;
     private String location;
-    private String password;
+    private String avatarUrl;
     @Builder.Default
-    private int role = 2;
+    private UserRole role = UserRole.ROLE_USER;
+    @Builder.Default
+    private RegistrationSource registrationId = RegistrationSource.google;
     @JsonProperty("key")
     public String getKey() {
         return id;

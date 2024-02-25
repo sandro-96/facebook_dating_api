@@ -20,24 +20,4 @@ public class UserService {
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
-
-    public User login(LoginDTO loginDTO) {
-        Optional<User> user = userRepository.findByUserNameAndPassword(loginDTO.getUserName(), loginDTO.getPassword());
-        return user.orElse(null);
-    }
-
-    public User signup(User user) {
-        boolean valid = userRepository.existsByUserName(user.getUserName());
-        if (!valid) {
-            final byte[] authBytes = user.getPassword().getBytes(StandardCharsets.UTF_8);
-            final String encoded = Base64.getEncoder().encodeToString(authBytes);
-            user.setPassword(encoded);
-            return userRepository.save(user);
-        }
-        else return null;
-    }
-
-    public Boolean checkUserName(String userName) {
-        return userRepository.existsByUserName(userName);
-    }
 }
