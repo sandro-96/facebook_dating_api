@@ -8,5 +8,6 @@ import java.util.Optional;
 
 @RepositoryRestResource(collectionResourceRel = "fbd_users", path = "fbd_users")
 public interface UserRepository extends MongoRepository<User, String> {
+    Optional<User> findByEmail(String email);
     Boolean existsByEmail(String email);
 }
