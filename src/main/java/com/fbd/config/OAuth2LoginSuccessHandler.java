@@ -11,6 +11,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -57,8 +58,10 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
             SecurityContextHolder.getContext().setAuthentication(authentication1);
         }
 
+        String callBackPath ="/callBack?authorizationCode=";
+        String authorizationCode = request.getParameter("code");
         this.setAlwaysUseDefaultTargetUrl(true);
-        this.setDefaultTargetUrl(frontendUrl);
+        this.setDefaultTargetUrl(frontendUrl + callBackPath + authorizationCode);
         super.onAuthenticationSuccess(request, response, authentication);
     }
 }
