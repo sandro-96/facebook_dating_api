@@ -26,10 +26,11 @@ public class User {
     private String birthDay;
     private String location;
     private String avatarUrl;
+    private String deviceId;
     @Builder.Default
     private UserRole role = UserRole.ROLE_USER;
     @Builder.Default
-    private RegistrationSource registrationId = RegistrationSource.google;
+    private RegistrationSource signupFrom = RegistrationSource.google;
     @JsonProperty("key")
     public String getKey() {
         return id;
