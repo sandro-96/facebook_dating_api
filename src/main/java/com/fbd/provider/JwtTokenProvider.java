@@ -1,6 +1,5 @@
 package com.fbd.provider;
 
-import com.fbd.model.CustomUserDetails;
 import io.jsonwebtoken.*;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,11 +14,11 @@ public class JwtTokenProvider {
     private String secret;
     public static final long JWT_TOKEN_VALIDITY = 360 * 24 * 60 * 60;
 
-    public String generateToken(CustomUserDetails userDetails) {
+    public String generateToken(String userDetails) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + JWT_TOKEN_VALIDITY);
         return Jwts.builder()
-                .setSubject(userDetails.getUser().getEmail())
+                .setSubject(userDetails)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, secret)

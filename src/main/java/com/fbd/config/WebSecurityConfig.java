@@ -49,8 +49,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+                .csrf()
+                .disable()
+                .cors()
+                .and()
                 .authorizeRequests(a -> a
-                        .antMatchers("/", "/error", "/webjars/**", "/oauth2/callback/google").permitAll()
+                        .antMatchers("/", "/error", "/webjars/**", "/oauth2/callback/google", "/oauth2/callback/google-sandro", "/oauth2/google/login/process").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(e -> e
