@@ -16,11 +16,10 @@ public class JwtTokenProvider {
 
     public String generateToken(String userDetails) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + JWT_TOKEN_VALIDITY);
         return Jwts.builder()
                 .setSubject(userDetails)
                 .setIssuedAt(now)
-                .setExpiration(expiryDate)
+                .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
                 .signWith(SignatureAlgorithm.HS512, secret)
                 .compact();
     }

@@ -32,6 +32,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // Get AuthenticationManager bean
         return super.authenticationManagerBean();
     }
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userService)
+                .passwordEncoder(passwordEncoder());
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -54,7 +59,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors()
                 .and()
                 .authorizeRequests(a -> a
-                        .antMatchers("/", "/error", "/webjars/**", "/oauth2/callback/google", "/oauth2/callback/google-sandro", "/oauth2/google/login/process").permitAll()
+                        .antMatchers("/", "/error", "/getUserFromToken", "/webjars/**", "/oauth2/callback/google", "/oauth2/callback/google-sandro", "/oauth2/google/login/process").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(e -> e

@@ -22,6 +22,9 @@ public class User {
     private String username;
     @Indexed(name = "email_user_index_unique", unique = true)
     private String email;
+    private int birthYear;
+    private String location;
+    private String gender;
     @CreatedDate
     private Date createdAt;
     @LastModifiedDate
