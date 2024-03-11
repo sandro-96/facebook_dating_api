@@ -25,6 +25,9 @@ public class User {
     private int birthYear;
     private String location;
     private String gender;
+    private String bio;
+    @Builder.Default
+    private Boolean isFirstLogin = true;
     @CreatedDate
     private Date createdAt;
     @LastModifiedDate

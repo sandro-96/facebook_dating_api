@@ -8,10 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -31,7 +27,6 @@ public class UserApiService {
         List<User> list;
         if (!Objects.equals(gender, "")) list = mongoUserRepository.findAllByGender(gender);
         else list = mongoUserRepository.findAll();
-        Collections.shuffle(list);
         return list.stream().filter(user1 -> !user1.getEmail().equals(((CustomUserDetails) user).getUser().getEmail())).collect(Collectors.toList());
     }
 }
