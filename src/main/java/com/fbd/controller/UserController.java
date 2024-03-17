@@ -23,7 +23,7 @@ public class UserController {
     private UserApiService userApiService;
 
     @GetMapping(value = "/list")
-    @ApiOperation(value = "List all company goal")
+    @ApiOperation(value = "List all users")
     public List<User> list(
             @RequestParam(required = false, defaultValue = "") String gender,
             @AuthenticationPrincipal UserDetails user) {
