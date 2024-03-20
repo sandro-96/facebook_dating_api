@@ -1,17 +1,17 @@
 package com.fbd.service;
 
 import com.fbd.model.FilterOption;
+import com.fbd.model.Match;
 import com.fbd.model.User;
 import com.fbd.mongo.MongoFilterOptionRepository;
+import com.fbd.mongo.MongoMatchRepository;
 import com.fbd.mongo.MongoUserRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,17 +23,25 @@ public class UserApiService {
     @Autowired
     @Lazy
     private final MongoFilterOptionRepository mongoFilterOptionRepository;
+    @Autowired
+    @Lazy
+    private final MongoMatchRepository mongoMatchRepository;
 
-    public UserApiService(MongoUserRepository mongoUserRepository, MongoFilterOptionRepository mongoFilterOptionRepository) {
+    public UserApiService(MongoUserRepository mongoUserRepository, MongoFilterOptionRepository mongoFilterOptionRepository, MongoMatchRepository mongoMatchRepository) {
         this.mongoUserRepository = mongoUserRepository;
         this.mongoFilterOptionRepository = mongoFilterOptionRepository;
+        this.mongoMatchRepository = mongoMatchRepository;
     }
 
     public List<User> list(String userId) {
+        List<String> likedUsers = mongoMatchRepository.findAllByCreatedBy(userId).stream().map(Match::getForUserId).collect(Collectors.toList());
         List<User> list;
         Optional<FilterOption> option = mongoFilterOptionRepository.findByUserId(userId);
         if (option.isPresent()) list = mongoUserRepository.findAllByGender(option.get().getGender());
         else list = mongoUserRepository.findAll();
-        return list.stream().filter(user1 -> !user1.getId().equals(userId)).collect(Collectors.toList());
+        list = list.stream().filter(user1 -> !user1.getId().equals(userId)).peek(user -> {
+            if (likedUsers.contains(user.getId())) user.setLiked(true);
+        }).collect(Collectors.toList());
+        return list;
     }
 }

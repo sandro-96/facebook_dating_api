@@ -32,6 +32,8 @@ public class User {
     private Date createdAt;
     @LastModifiedDate
     private Date updatedAt;
+    @Builder.Default
+    private Boolean liked = false;
     @JsonProperty("key")
     public String getKey() {
         return id;
