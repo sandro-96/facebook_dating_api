@@ -23,8 +23,14 @@ public class MatchController {
 
     @GetMapping(value = "/filter_option")
     @ApiOperation(value = "Get user filter option")
-    public Optional<FilterOption> get(
+    public Optional<FilterOption> getFilter(
             @AuthenticationPrincipal UserDetails user) {
-        return matchService.get(user.getUsername());
+        return matchService.getFilter(user.getUsername());
+    }
+    @GetMapping(value = "/count/liked")
+    @ApiOperation(value = "Get count of liked")
+    public int countLiked(
+            @AuthenticationPrincipal UserDetails user) {
+        return matchService.getCountLiked(user.getUsername());
     }
 }

@@ -37,11 +37,9 @@ public class UserApiService {
         List<String> likedUsers = mongoMatchRepository.findAllByCreatedBy(userId).stream().map(Match::getForUserId).collect(Collectors.toList());
         List<User> list;
         Optional<FilterOption> option = mongoFilterOptionRepository.findByUserId(userId);
-        if (option.isPresent()) list = mongoUserRepository.findAllByGender(option.get().getGender());
+        if (option.isPresent() && option.get().getGender() != null) list = mongoUserRepository.findAllByGender(option.get().getGender());
         else list = mongoUserRepository.findAll();
-        list = list.stream().filter(user1 -> !user1.getId().equals(userId)).peek(user -> {
-            if (likedUsers.contains(user.getId())) user.setLiked(true);
-        }).collect(Collectors.toList());
+        list = list.stream().filter(user1 -> !user1.getId().equals(userId) && !likedUsers.contains(user1.getId())).collect(Collectors.toList());
         return list;
     }
 }
