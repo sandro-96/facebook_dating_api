@@ -42,4 +42,9 @@ public class UserApiService {
         list = list.stream().filter(user1 -> !user1.getId().equals(userId) && !likedUsers.contains(user1.getId())).collect(Collectors.toList());
         return list;
     }
+
+    public List<User> likedList(String userId) {
+        List<String> likedUsers = mongoMatchRepository.findAllByForUserId(userId).stream().map(Match::getCreatedBy).collect(Collectors.toList());
+        return (List<User>) mongoUserRepository.findAllById(likedUsers);
+    }
 }

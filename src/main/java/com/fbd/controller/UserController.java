@@ -27,6 +27,13 @@ public class UserController {
         return userApiService.list(user.getUsername());
     }
 
+    @GetMapping(value = "/likedList")
+    @ApiOperation(value = "List all users liked me")
+    public List<User> likedList(
+            @AuthenticationPrincipal UserDetails user) {
+        return userApiService.likedList(user.getUsername());
+    }
+
     /*@PostMapping(value = "/generate")
     @ApiOperation(value = "List all users")
     public void generate(

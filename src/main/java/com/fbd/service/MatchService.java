@@ -1,6 +1,7 @@
 package com.fbd.service;
 
 import com.fbd.model.FilterOption;
+import com.fbd.model.Match;
 import com.fbd.mongo.MongoFilterOptionRepository;
 import com.fbd.mongo.MongoMatchRepository;
 import com.fbd.utils.DateUtils;
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -32,6 +34,8 @@ public class MatchService {
         return mongoFilterOptionRepository.findByUserId(userId);
     }
     public int getCountLiked(String userId) {
+        List<Match> matches = mongoMatchRepository.findAllByCreatedByAndCreatedAtLessThan(userId, DateUtils.atStartOfDay(new Date()));
+        mongoMatchRepository.deleteAll(matches);
         return mongoMatchRepository
                 .countAllByCreatedByAndCreatedAtGreaterThanEqual(userId, DateUtils.atStartOfDay(new Date()));
     }

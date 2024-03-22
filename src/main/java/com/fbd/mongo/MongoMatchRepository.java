@@ -10,5 +10,7 @@ import java.util.List;
 @RepositoryRestResource(collectionResourceRel = "fbd_matches", path = "fbd_matches")
 public interface MongoMatchRepository extends MongoRepository<Match, String> {
     List<Match> findAllByCreatedBy(String userId);
+    List<Match> findAllByForUserId(String userId);
+    List<Match> findAllByCreatedByAndCreatedAtLessThan(String userId, Date date);
     int countAllByCreatedByAndCreatedAtGreaterThanEqual(String createdBy, Date date);
 }
