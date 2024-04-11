@@ -59,7 +59,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors()
                 .and()
                 .authorizeRequests(a -> a
-                        .antMatchers("/", "/error", "/getUserFromToken", "/webjars/**", "/oauth2/callback/google", "/oauth2/callback/google-sandro", "/oauth2/google/login/process").permitAll()
+                        .antMatchers("/", "/error", "/ws/**", "/getUserFromToken", "/webjars/**", "/oauth2/callback/google", "/oauth2/callback/google-sandro", "/oauth2/google/login/process").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(e -> e

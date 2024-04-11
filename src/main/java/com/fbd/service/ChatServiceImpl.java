@@ -16,8 +16,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public void sendMessage(ChatMessage chatMessage) {
-        template.convertAndSendToUser(
-                chatMessage.getForUserId(),
+        template.convertAndSend(
                 "/queue/messages",
                 chatMessage
         );
