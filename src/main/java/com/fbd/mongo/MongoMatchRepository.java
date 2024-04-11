@@ -11,6 +11,6 @@ import java.util.List;
 public interface MongoMatchRepository extends MongoRepository<Match, String> {
     List<Match> findAllByCreatedBy(String userId);
     List<Match> findAllByForUserId(String userId);
-    List<Match> findAllByCreatedByAndCreatedAtLessThan(String userId, Date date);
     int countAllByCreatedByAndCreatedAtGreaterThanEqual(String createdBy, Date date);
+    void deleteByCreatedByAndForUserId(String user1Id, String user2Id);
 }
