@@ -12,7 +12,7 @@ public class ScheduledTasks {
     private MatchServiceImpl matchService;
 
     // This will run every day at 12 PM
-    @Scheduled(cron = "0 0 12 * * ?")
+    @Scheduled(cron = "0 0 0 * * ?")
     public void runEverydayAt12PM() {
         // delete all match from match collection
         matchService.deleteAllMatches();
