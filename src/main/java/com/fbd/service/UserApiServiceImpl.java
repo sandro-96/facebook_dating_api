@@ -41,17 +41,40 @@ public class UserApiServiceImpl implements UserApiService {
 
     @Override
     public List<User> list(String userId) {
-        List<String> likedUsers = mongoMatchRepository.findAllByCreatedBy(userId).stream().map(Match::getForUserId).collect(Collectors.toList());
-        mongoTopicRepository.findByUser1_IdOrUser2_Id(userId).forEach(topic -> {
-            if (topic.getUser1().getId().equals(userId)) likedUsers.add(topic.getUser2().getId());
-            else likedUsers.add(topic.getUser1().getId());
-        });
-        List<User> list;
+        List<String> likedUsers = getLikedUsers(userId);
+        List<User> list = getUsersBasedOnFilterOption(userId);
+        return filterUsers(list, userId, likedUsers);
+    }
+
+    private List<String> getLikedUsers(String userId) {
+        List<String> likedUsersCreatedBy = mongoMatchRepository.findAllByCreatedBy(userId).stream()
+                .map(Match::getForUserId)
+                .collect(Collectors.toList());
+
+        List<String> likedUsersForUserId = mongoMatchRepository.findAllByForUserId(userId).stream()
+                .map(Match::getCreatedBy)
+                .collect(Collectors.toList());
+
+        List<String> topicUsers = mongoTopicRepository.findByUser1_IdOrUser2_Id(userId).stream()
+                .map(topic -> topic.getUser1().getId().equals(userId) ? topic.getUser2().getId() : topic.getUser1().getId())
+                .collect(Collectors.toList());
+
+        likedUsersCreatedBy.addAll(likedUsersForUserId);
+        likedUsersCreatedBy.addAll(topicUsers);
+        return likedUsersCreatedBy;
+    }
+
+    private List<User> getUsersBasedOnFilterOption(String userId) {
         Optional<FilterOption> option = mongoFilterOptionRepository.findByUserId(userId);
-        if (option.isPresent() && option.get().getGender() != null) list = mongoUserRepository.findAllByGender(option.get().getGender());
-        else list = mongoUserRepository.findAll();
-        list = list.stream().filter(user1 -> !user1.getId().equals(userId) && !likedUsers.contains(user1.getId())).collect(Collectors.toList());
-        return list;
+        return option.isPresent() && option.get().getGender() != null ?
+                mongoUserRepository.findAllByGender(option.get().getGender()) :
+                mongoUserRepository.findAll();
+    }
+
+    private List<User> filterUsers(List<User> users, String userId, List<String> likedUsers) {
+        return users.stream()
+                .filter(user -> !user.getId().equals(userId) && !likedUsers.contains(user.getId()))
+                .collect(Collectors.toList());
     }
 
     @Override
