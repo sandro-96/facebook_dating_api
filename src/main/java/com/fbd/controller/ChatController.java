@@ -1,10 +1,10 @@
 package com.fbd.controller;
 
-import com.fbd.dto.ChatMessageDto;
+import com.fbd.model.ChatMessage;
 import com.fbd.service.ChatServiceImpl;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 public class ChatController {
@@ -14,8 +14,14 @@ public class ChatController {
         this.chatService = chatService;
     }
 
+    @GetMapping("/chat/messages/ordered/{topicId}")
+    public List<ChatMessage> getAllMessagesByTopicIdOrderByCreatedAt(@PathVariable String topicId) {
+        return chatService.getAllMessagesByTopicIdOrderByCreatedAt(topicId);
+    }
+
     @PostMapping("/chat")
-    public void send(@RequestBody ChatMessageDto chatMessageDto) {
-        chatService.sendMessage(chatMessageDto.toChatMessage());
+    public void send(@RequestBody ChatMessage chatMessage) {
+        chatService.sendMessage(chatMessage);
+        /*chatService.sendMessage(chatMessageDto.toChatMessage());*/
     }
 }

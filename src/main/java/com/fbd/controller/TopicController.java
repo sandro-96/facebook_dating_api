@@ -24,8 +24,8 @@ public class TopicController {
         return topicService.createTopic(user.getUsername(), topicData);
     }
 
-    @GetMapping("/user/{userId}")
-    public List<Topic> getTopicsByUserId(@PathVariable String userId) {
-        return topicService.getTopicsByUserId(userId);
+    @GetMapping("/topicsWithLatestChat/{userId}")
+    public List<Topic> getTopicsWithLatestChat(@PathVariable String userId) {
+        return topicService.getTopicsWithLatestChat(userId);
     }
 }

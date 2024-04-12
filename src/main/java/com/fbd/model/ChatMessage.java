@@ -14,6 +14,7 @@ import java.util.Date;
 @Document(collection = "chat")
 public class ChatMessage {
     private String forUserId;
+    private String topicId;
     private String content;
     @CreatedDate
     @Indexed

@@ -1,7 +1,9 @@
 package com.fbd.service;
 
+import com.fbd.model.ChatMessage;
 import com.fbd.model.Topic;
 import com.fbd.model.User;
+import com.fbd.mongo.MongoChatRepository;
 import com.fbd.mongo.MongoMatchRepository;
 import com.fbd.mongo.MongoTopicRepository;
 import com.fbd.mongo.MongoUserRepository;
@@ -18,12 +20,14 @@ public class TopicServiceImpl implements TopicService {
     private final MongoTopicRepository mongoTopicRepository;
     private final MongoUserRepository mongoUserRepository;
     private final MongoMatchRepository mongoMatchRepository;
+    private final MongoChatRepository mongoChatRepository;
 
     @Autowired
-    public TopicServiceImpl(MongoTopicRepository mongoTopicRepository, MongoUserRepository mongoUserRepository, MongoMatchRepository mongoMatchRepository) {
+    public TopicServiceImpl(MongoTopicRepository mongoTopicRepository, MongoUserRepository mongoUserRepository, MongoMatchRepository mongoMatchRepository, MongoChatRepository mongoChatRepository) {
         this.mongoTopicRepository = mongoTopicRepository;
         this.mongoUserRepository = mongoUserRepository;
         this.mongoMatchRepository = mongoMatchRepository;
+        this.mongoChatRepository = mongoChatRepository;
     }
 
     @Override
@@ -75,6 +79,15 @@ public class TopicServiceImpl implements TopicService {
         return topic;
     }
 
+    public List<Topic> getTopicsWithLatestChat(String userId) {
+        List<Topic> topics = getTopicsByUserId(userId);
+        topics.forEach(topic -> {
+            ChatMessage latestMessage = mongoChatRepository.findTopByTopicIdOrderByCreatedAtDesc(topic.getId());
+            if (latestMessage != null) topic.setLastMessage(latestMessage.getContent());
+            else topic.setLastMessage(topic.getDescription());
+        });
+        return topics;
+    }
     public List<Topic> getTopicsByUserId(String userId) {
         return mongoTopicRepository.findByUser1_IdOrUser2_Id(userId);
     }
