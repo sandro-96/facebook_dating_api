@@ -1,5 +1,7 @@
 package com.fbd.service;
 
+import com.fbd.constant.Constant;
+import com.fbd.dto.SocketDto;
 import com.fbd.model.ChatMessage;
 import com.fbd.mongo.MongoChatRepository;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -22,13 +24,24 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public void sendMessage(ChatMessage chatMessage) {
         mongoChatRepository.save(chatMessage);
-        template.convertAndSend(
-                "/queue/messages",
-                chatMessage
-        );
+        SocketDto socketDto = createSocketDto(chatMessage.getTopicId(), chatMessage.getForUserId(), chatMessage.getContent());
+        sendSocketMessage(socketDto);
     }
 
     public List<ChatMessage> getAllMessagesByTopicIdOrderByCreatedAt(String topicId) {
         return mongoChatRepository.findByTopicIdOrderByCreatedAtAsc(topicId);
+    }
+
+    private SocketDto createSocketDto(String topicId, String forUserId, String content) {
+        SocketDto socketDto = new SocketDto();
+        socketDto.setType(Constant.WebSocket.SOCKET_CHAT_UPDATE);
+        socketDto.setTopicId(topicId);
+        socketDto.setForUserId(forUserId);
+        socketDto.setContent(content);
+        return socketDto;
+    }
+
+    private void sendSocketMessage(SocketDto socketDto) {
+        template.convertAndSend("/queue/messages", socketDto);
     }
 }

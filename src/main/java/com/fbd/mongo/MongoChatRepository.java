@@ -10,4 +10,5 @@ import java.util.List;
 public interface MongoChatRepository extends MongoRepository<ChatMessage, String> {
     ChatMessage findTopByTopicIdOrderByCreatedAtDesc(String topicId);
     List<ChatMessage> findByTopicIdOrderByCreatedAtAsc(String topicId);
+    void deleteByTopicId(String topicId);
 }

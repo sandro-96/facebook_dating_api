@@ -1,5 +1,7 @@
 package com.fbd.service;
 
+import com.fbd.constant.Constant;
+import com.fbd.dto.SocketDto;
 import com.fbd.model.ChatMessage;
 import com.fbd.model.Topic;
 import com.fbd.model.User;
@@ -8,6 +10,7 @@ import com.fbd.mongo.MongoMatchRepository;
 import com.fbd.mongo.MongoTopicRepository;
 import com.fbd.mongo.MongoUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,13 +24,15 @@ public class TopicServiceImpl implements TopicService {
     private final MongoUserRepository mongoUserRepository;
     private final MongoMatchRepository mongoMatchRepository;
     private final MongoChatRepository mongoChatRepository;
+    private final SimpMessagingTemplate template;
 
     @Autowired
-    public TopicServiceImpl(MongoTopicRepository mongoTopicRepository, MongoUserRepository mongoUserRepository, MongoMatchRepository mongoMatchRepository, MongoChatRepository mongoChatRepository) {
+    public TopicServiceImpl(MongoTopicRepository mongoTopicRepository, MongoUserRepository mongoUserRepository, MongoMatchRepository mongoMatchRepository, MongoChatRepository mongoChatRepository, SimpMessagingTemplate template) {
         this.mongoTopicRepository = mongoTopicRepository;
         this.mongoUserRepository = mongoUserRepository;
         this.mongoMatchRepository = mongoMatchRepository;
         this.mongoChatRepository = mongoChatRepository;
+        this.template = template;
     }
 
     @Override
@@ -63,6 +68,8 @@ public class TopicServiceImpl implements TopicService {
         Topic topic = createNewTopic(user1, user2, description);
         Topic savedTopic = addTopic(topic);
         mongoMatchRepository.deleteByCreatedByAndForUserId(forUserId, userId);
+        SocketDto socketDto = createSocketDto(savedTopic.getId(), forUserId);
+        sendSocketMessage(socketDto);
         return savedTopic;
     }
 
@@ -90,5 +97,17 @@ public class TopicServiceImpl implements TopicService {
     }
     public List<Topic> getTopicsByUserId(String userId) {
         return mongoTopicRepository.findByUser1_IdOrUser2_Id(userId);
+    }
+
+    private SocketDto createSocketDto(String topicId, String forUserId) {
+        SocketDto socketDto = new SocketDto();
+        socketDto.setType(Constant.WebSocket.SOCKET_TOPIC_UPDATE);
+        socketDto.setTopicId(topicId);
+        socketDto.setForUserId(forUserId);
+        return socketDto;
+    }
+
+    private void sendSocketMessage(SocketDto socketDto) {
+        template.convertAndSend("/queue/messages", socketDto);
     }
 }

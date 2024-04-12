@@ -22,6 +22,5 @@ public class ChatController {
     @PostMapping("/chat")
     public void send(@RequestBody ChatMessage chatMessage) {
         chatService.sendMessage(chatMessage);
-        /*chatService.sendMessage(chatMessageDto.toChatMessage());*/
     }
 }
