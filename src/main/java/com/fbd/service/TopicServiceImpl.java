@@ -76,7 +76,7 @@ public class TopicServiceImpl implements TopicService {
         Topic topic = createNewTopic(user1, user2, description);
         Topic savedTopic = addTopic(topic);
         mongoMatchRepository.deleteByCreatedByAndForUserId(forUserId, userId);
-        SocketDto socketDto = createSocketDto(savedTopic.getId(), forUserId);
+        SocketDto socketDto = createSocketDto(savedTopic.getId(), forUserId, userId);
         sendSocketMessage(socketDto);
         return savedTopic;
     }
@@ -107,11 +107,12 @@ public class TopicServiceImpl implements TopicService {
         return mongoTopicRepository.findByUser1_IdOrUser2_Id(userId);
     }
 
-    private SocketDto createSocketDto(String topicId, String forUserId) {
+    private SocketDto createSocketDto(String topicId, String forUserId, String createdBy) {
         SocketDto socketDto = new SocketDto();
         socketDto.setType(Constant.WebSocket.SOCKET_TOPIC_UPDATE);
         socketDto.setTopicId(topicId);
         socketDto.setForUserId(forUserId);
+        socketDto.setCreatedBy(createdBy);
         return socketDto;
     }
 

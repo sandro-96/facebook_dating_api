@@ -10,4 +10,5 @@ public class SocketDto {
     private String forUserId;
     private String content;
     private String type;
+    private String createdBy;
 }

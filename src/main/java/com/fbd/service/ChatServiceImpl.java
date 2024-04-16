@@ -24,7 +24,7 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public void sendMessage(ChatMessage chatMessage) {
         mongoChatRepository.save(chatMessage);
-        SocketDto socketDto = createSocketDto(chatMessage.getTopicId(), chatMessage.getForUserId(), chatMessage.getContent());
+        SocketDto socketDto = createSocketDto(chatMessage.getTopicId(), chatMessage.getForUserId(), chatMessage.getContent(), chatMessage.getCreatedBy());
         sendSocketMessage(socketDto);
     }
 
@@ -32,12 +32,13 @@ public class ChatServiceImpl implements ChatService {
         return mongoChatRepository.findByTopicIdOrderByCreatedAtAsc(topicId);
     }
 
-    private SocketDto createSocketDto(String topicId, String forUserId, String content) {
+    private SocketDto createSocketDto(String topicId, String forUserId, String content, String createdBy) {
         SocketDto socketDto = new SocketDto();
         socketDto.setType(Constant.WebSocket.SOCKET_CHAT_UPDATE);
         socketDto.setTopicId(topicId);
         socketDto.setForUserId(forUserId);
         socketDto.setContent(content);
+        socketDto.setCreatedBy(createdBy);
         return socketDto;
     }
 
