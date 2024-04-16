@@ -49,4 +49,14 @@ public class Topic {
             return null;
         }
     }
+    @JsonProperty("forUserId")
+    public String getForUserId(String userId) {
+        if (user1.getId().equals(userId)) {
+            return user2.getId();
+        } else if (user2.getId().equals(userId)) {
+            return user1.getId();
+        } else {
+            return null;
+        }
+    }
 }

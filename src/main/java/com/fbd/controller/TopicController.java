@@ -28,4 +28,9 @@ public class TopicController {
     public List<Topic> getTopicsWithLatestChat(@PathVariable String userId) {
         return topicService.getTopicsWithLatestChat(userId);
     }
+
+    @DeleteMapping("/deleteTopic/{id}")
+    public void deleteTopic(@AuthenticationPrincipal UserDetails user, @PathVariable String id) {
+        topicService.deleteTopic(user.getUsername(), id);
+    }
 }

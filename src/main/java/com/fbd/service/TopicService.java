@@ -15,5 +15,5 @@ public interface TopicService {
 
     Topic updateTopic(Topic topic);
 
-    void deleteTopic(String id);
+    void deleteTopic(String userId, String id);
 }

@@ -56,8 +56,16 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    public void deleteTopic(String id) {
-        mongoTopicRepository.deleteById(id);
+    public void deleteTopic(String userId, String id) {
+        Optional<Topic> topic = mongoTopicRepository.findById(id);
+        topic.ifPresent(value -> {
+            mongoTopicRepository.delete(value);
+            SocketDto socketDto = new SocketDto();
+            socketDto.setType(Constant.WebSocket.SOCKET_TOPIC_DELETE);
+            socketDto.setTopicId(value.getId());
+            socketDto.setForUserId(value.getForUserId(userId));
+            template.convertAndSend("/queue/messages", socketDto);
+        });
     }
 
     public Topic createTopic(String userId, Map<String, Object> topicData) {
