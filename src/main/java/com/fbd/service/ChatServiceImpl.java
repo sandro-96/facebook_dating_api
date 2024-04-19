@@ -12,6 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @Service
@@ -35,10 +38,20 @@ public class ChatServiceImpl implements ChatService {
         chatMessage.setContent(chatForm.getContent());
         if (chatForm.getFile() != null && !chatForm.getFile().isEmpty()) {
             try {
-                byte[] imageBytes = chatForm.getFile().getBytes();
-                chatMessage.setImage(imageBytes);
+                // Define the directory where you want to save the images
+                String directory = "/resource/file";
+                Path dirPath = Paths.get(directory);
+                if (!Files.exists(dirPath)) {
+                    Files.createDirectories(dirPath);
+                }
+
+                Path filePath = dirPath.resolve(chatForm.getFile().getName());
+                Files.write(filePath, chatForm.getFile().getBytes());
+
+                // Save the path to the image in the database instead of the image itself
+                chatMessage.setImagePath(filePath.toString());
             } catch (IOException e) {
-                throw new RuntimeException("Failed to convert image file to byte[]", e);
+                throw new RuntimeException("Failed to store image file", e);
             }
         }
         mongoChatRepository.save(chatMessage);

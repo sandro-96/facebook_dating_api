@@ -16,7 +16,7 @@ public class ChatMessage {
     private String forUserId;
     private String topicId;
     private String content;
-    private byte[] image;
+    private String imagePath;
     @CreatedDate
     @Indexed
     private Date createdAt;
