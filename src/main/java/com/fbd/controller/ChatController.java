@@ -1,8 +1,13 @@
 package com.fbd.controller;
 
+import com.fbd.dto.ChatForm;
 import com.fbd.model.ChatMessage;
 import com.fbd.service.ChatServiceImpl;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -15,12 +20,12 @@ public class ChatController {
     }
 
     @GetMapping("/chat/messages/ordered/{topicId}")
-    public List<ChatMessage> getAllMessagesByTopicIdOrderByCreatedAt(@PathVariable String topicId) {
-        return chatService.getAllMessagesByTopicIdOrderByCreatedAt(topicId);
+    public List<ChatMessage> getAllMessagesByTopicIdOrderByCreatedAt(@PathVariable String topicId, @AuthenticationPrincipal UserDetails user) {
+        return chatService.getAllMessagesByTopicIdOrderByCreatedAt(topicId, user.getUsername());
     }
 
-    @PostMapping("/chat")
-    public void send(@RequestBody ChatMessage chatMessage) {
-        chatService.sendMessage(chatMessage);
+    @PostMapping(value = "/chat", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    public void send(@ModelAttribute ChatForm chatForm) {
+        chatService.sendMessage(chatForm);
     }
 }

@@ -33,6 +33,8 @@ public class Topic {
     private User user1;
     private User user2;
     private String lastMessage;
+    @Builder.Default
+    private Boolean unread = false;
 
     @JsonProperty("key")
     public String getKey() {

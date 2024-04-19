@@ -5,10 +5,7 @@ import com.fbd.dto.SocketDto;
 import com.fbd.model.ChatMessage;
 import com.fbd.model.Topic;
 import com.fbd.model.User;
-import com.fbd.mongo.MongoChatRepository;
-import com.fbd.mongo.MongoMatchRepository;
-import com.fbd.mongo.MongoTopicRepository;
-import com.fbd.mongo.MongoUserRepository;
+import com.fbd.mongo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -25,14 +22,16 @@ public class TopicServiceImpl implements TopicService {
     private final MongoMatchRepository mongoMatchRepository;
     private final MongoChatRepository mongoChatRepository;
     private final SimpMessagingTemplate template;
+    private final MongoUnreadTopicRepository mongoUnreadTopicRepository;
 
     @Autowired
-    public TopicServiceImpl(MongoTopicRepository mongoTopicRepository, MongoUserRepository mongoUserRepository, MongoMatchRepository mongoMatchRepository, MongoChatRepository mongoChatRepository, SimpMessagingTemplate template) {
+    public TopicServiceImpl(MongoTopicRepository mongoTopicRepository, MongoUserRepository mongoUserRepository, MongoMatchRepository mongoMatchRepository, MongoChatRepository mongoChatRepository, SimpMessagingTemplate template, MongoUnreadTopicRepository mongoUnreadTopicRepository) {
         this.mongoTopicRepository = mongoTopicRepository;
         this.mongoUserRepository = mongoUserRepository;
         this.mongoMatchRepository = mongoMatchRepository;
         this.mongoChatRepository = mongoChatRepository;
         this.template = template;
+        this.mongoUnreadTopicRepository = mongoUnreadTopicRepository;
     }
 
     @Override
@@ -100,6 +99,8 @@ public class TopicServiceImpl implements TopicService {
             ChatMessage latestMessage = mongoChatRepository.findTopByTopicIdOrderByCreatedAtDesc(topic.getId());
             if (latestMessage != null) topic.setLastMessage(latestMessage.getContent());
             else topic.setLastMessage(topic.getDescription());
+            mongoUnreadTopicRepository.findByTopicIdAndUserId(topic.getId(), userId)
+                    .ifPresent(unreadTopic -> topic.setUnread(true));
         });
         return topics;
     }
