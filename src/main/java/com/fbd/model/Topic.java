@@ -32,7 +32,7 @@ public class Topic {
     private String createdBy;
     private User user1;
     private User user2;
-    private String lastMessage;
+    private ChatMessage lastMessage;
     @Builder.Default
     private Boolean unread = false;
 

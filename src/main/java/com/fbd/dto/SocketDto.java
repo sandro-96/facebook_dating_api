@@ -9,6 +9,7 @@ public class SocketDto {
     private String topicId;
     private String forUserId;
     private String content;
+    private String imagePath;
     private String type;
     private String createdBy;
 }

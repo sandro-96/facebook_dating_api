@@ -21,7 +21,7 @@ public class PublicController {
     private JwtTokenProvider jwtTokenProvider;
 
     @GetMapping("/getUserFromToken")
-    public ResponseEntity<LoginDTO> getUserFromToken(@RequestParam() String token) throws Exception {
+    public ResponseEntity<LoginDTO> getUserFromToken(@RequestParam() String token) {
         String userId = jwtTokenProvider.getUserIdFromJWT(token);
         Optional<User> user = mongoUserRepository.findById(userId);
         return ResponseEntity.ok(LoginDTO.builder()

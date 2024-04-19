@@ -6,16 +6,20 @@ import com.fbd.dto.SocketDto;
 import com.fbd.model.ChatMessage;
 import com.fbd.mongo.MongoChatRepository;
 import com.fbd.mongo.MongoUnreadTopicRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class ChatServiceImpl implements ChatService {
@@ -39,24 +43,39 @@ public class ChatServiceImpl implements ChatService {
         if (chatForm.getFile() != null && !chatForm.getFile().isEmpty()) {
             try {
                 // Define the directory where you want to save the images
-                String directory = "/resource/file";
+                String directory = "/resource/file/" + chatForm.getTopicId();
                 Path dirPath = Paths.get(directory);
                 if (!Files.exists(dirPath)) {
                     Files.createDirectories(dirPath);
                 }
 
-                Path filePath = dirPath.resolve(chatForm.getFile().getName());
+                Path filePath = dirPath.resolve(Objects.requireNonNull(chatForm.getFile().getOriginalFilename()));
                 Files.write(filePath, chatForm.getFile().getBytes());
 
                 // Save the path to the image in the database instead of the image itself
-                chatMessage.setImagePath(filePath.toString());
+                MultipartFile multipartFile = chatForm.getFile();
+                chatMessage.setImagePath(multipartFile.getOriginalFilename());
             } catch (IOException e) {
                 throw new RuntimeException("Failed to store image file", e);
             }
         }
         mongoChatRepository.save(chatMessage);
-        SocketDto socketDto = createSocketDto(chatMessage.getTopicId(), chatMessage.getForUserId(), chatMessage.getContent(), chatMessage.getCreatedBy());
+        SocketDto socketDto = createSocketDto(chatMessage);
         sendSocketMessage(socketDto);
+    }
+
+    public Resource getImage(String imageName, String topicId) {
+        try {
+            Path imagePath = Paths.get("/resource/file/" + topicId, imageName);
+            Resource resource = new UrlResource(imagePath.toUri());
+            if (resource.exists() || resource.isReadable()) {
+                return resource;
+            } else {
+                throw new RuntimeException("Could not read the file!");
+            }
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Error: " + e.getMessage());
+        }
     }
 
     public List<ChatMessage> getAllMessagesByTopicIdOrderByCreatedAt(String topicId, String currentUser) {
@@ -64,13 +83,14 @@ public class ChatServiceImpl implements ChatService {
         return mongoChatRepository.findByTopicIdOrderByCreatedAtAsc(topicId);
     }
 
-    private SocketDto createSocketDto(String topicId, String forUserId, String content, String createdBy) {
+    private SocketDto createSocketDto(ChatMessage chatMessage) {
         SocketDto socketDto = new SocketDto();
         socketDto.setType(Constant.WebSocket.SOCKET_CHAT_UPDATE);
-        socketDto.setTopicId(topicId);
-        socketDto.setForUserId(forUserId);
-        socketDto.setContent(content);
-        socketDto.setCreatedBy(createdBy);
+        socketDto.setTopicId(chatMessage.getTopicId());
+        socketDto.setForUserId(chatMessage.getForUserId());
+        socketDto.setContent(chatMessage.getContent());
+        socketDto.setCreatedBy(chatMessage.getCreatedBy());
+        socketDto.setImagePath(chatMessage.getImagePath());
         return socketDto;
     }
 

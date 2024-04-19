@@ -97,8 +97,7 @@ public class TopicServiceImpl implements TopicService {
         List<Topic> topics = getTopicsByUserId(userId);
         topics.forEach(topic -> {
             ChatMessage latestMessage = mongoChatRepository.findTopByTopicIdOrderByCreatedAtDesc(topic.getId());
-            if (latestMessage != null) topic.setLastMessage(latestMessage.getContent());
-            else topic.setLastMessage(topic.getDescription());
+            if (latestMessage != null) topic.setLastMessage(latestMessage);
             mongoUnreadTopicRepository.findByTopicIdAndUserId(topic.getId(), userId)
                     .ifPresent(unreadTopic -> topic.setUnread(true));
         });
