@@ -9,5 +9,5 @@ import java.util.Optional;
 
 public interface MatchService {
     Optional<FilterOption> getFilter(String userId);
-    int getCountLiked(String userId);
+    int matchedCount(String userId);
 }

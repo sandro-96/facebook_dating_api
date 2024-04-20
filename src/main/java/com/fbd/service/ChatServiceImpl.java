@@ -4,11 +4,18 @@ import com.fbd.constant.Constant;
 import com.fbd.dto.ChatForm;
 import com.fbd.dto.SocketDto;
 import com.fbd.model.ChatMessage;
+import com.fbd.model.PublicChat;
+import com.fbd.model.User;
 import com.fbd.mongo.MongoChatRepository;
+import com.fbd.mongo.MongoPublicChatRepository;
 import com.fbd.mongo.MongoUnreadTopicRepository;
+import com.fbd.mongo.MongoUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,12 +33,16 @@ public class ChatServiceImpl implements ChatService {
     private final SimpMessagingTemplate template;
     private final MongoChatRepository mongoChatRepository;
     private final MongoUnreadTopicRepository mongoUnreadTopicRepository;
+    private final MongoPublicChatRepository mongoPublicChatRepository;
+    private final MongoUserRepository mongoUserRepository;
 
     @Autowired
-    public ChatServiceImpl(SimpMessagingTemplate template, MongoChatRepository mongoChatRepository, MongoUnreadTopicRepository mongoUnreadTopicRepository) {
+    public ChatServiceImpl(SimpMessagingTemplate template, MongoChatRepository mongoChatRepository, MongoUnreadTopicRepository mongoUnreadTopicRepository, MongoPublicChatRepository mongoPublicChatRepository, MongoUserRepository mongoUserRepository) {
         this.template = template;
         this.mongoChatRepository = mongoChatRepository;
         this.mongoUnreadTopicRepository = mongoUnreadTopicRepository;
+        this.mongoPublicChatRepository = mongoPublicChatRepository;
+        this.mongoUserRepository = mongoUserRepository;
     }
 
     @Override
@@ -62,6 +73,21 @@ public class ChatServiceImpl implements ChatService {
         mongoChatRepository.save(chatMessage);
         SocketDto socketDto = createSocketDto(chatMessage);
         sendSocketMessage(socketDto);
+    }
+
+    public Page<PublicChat> getAllPublicChats(Pageable pageable) {
+        return mongoPublicChatRepository.findAllByOrderByCreatedAtAsc(pageable);
+    }
+
+    public PublicChat chatPublic(String content, String userId) {
+        User user = mongoUserRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+        user.setEmail(null);
+        PublicChat publicChat = new PublicChat();
+        publicChat.setContent(content);
+        publicChat.setUserInfo(user);
+
+        return mongoPublicChatRepository.save(publicChat);
     }
 
     public Resource getImage(String imageName, String topicId) {

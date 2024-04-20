@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ScheduledTasks {
-
     @Autowired
     private MatchServiceImpl matchService;
 
@@ -16,5 +15,6 @@ public class ScheduledTasks {
     public void runEverydayAt12PM() {
         // delete all match from match collection
         matchService.deleteAllMatches();
+        matchService.deleteAllMatchTurn();
     }
 }

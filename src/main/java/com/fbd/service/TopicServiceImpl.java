@@ -72,6 +72,8 @@ public class TopicServiceImpl implements TopicService {
         String description = (String) topicData.get("description");
         User user1 = getUser(userId);
         User user2 = getUser(forUserId);
+        user1.setEmail(null);
+        user2.setEmail(null);
         Topic topic = createNewTopic(user1, user2, description);
         Topic savedTopic = addTopic(topic);
         mongoMatchRepository.deleteByCreatedByAndForUserId(forUserId, userId);

@@ -22,8 +22,8 @@ public class MatchController {
         return matchService.getFilter(user.getUsername());
     }
 
-    @GetMapping(value = "/count/liked")
-    public int countLiked(@AuthenticationPrincipal UserDetails user) {
-        return matchService.getCountLiked(user.getUsername());
+    @GetMapping(value = "/matched_count")
+    public int matchedCount(@AuthenticationPrincipal UserDetails user) {
+        return matchService.matchedCount(user.getUsername());
     }
 }

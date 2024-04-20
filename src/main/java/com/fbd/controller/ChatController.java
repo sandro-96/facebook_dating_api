@@ -2,9 +2,14 @@ package com.fbd.controller;
 
 import com.fbd.dto.ChatForm;
 import com.fbd.model.ChatMessage;
+import com.fbd.model.PublicChat;
+import com.fbd.mongo.MongoPublicChatRepository;
 import com.fbd.service.ChatServiceImpl;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,10 +18,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
+@Log4j2
 @RestController
 public class ChatController {
     private final ChatServiceImpl chatService;
+
 
     public ChatController(ChatServiceImpl chatService) {
         this.chatService = chatService;
@@ -44,5 +52,15 @@ public class ChatController {
     public ResponseEntity<Resource> getImage(@PathVariable String imageName, @RequestParam String topicId) {
         Resource resource = chatService.getImage(imageName, topicId);
         return ResponseEntity.ok().body(resource);
+    }
+
+    @PostMapping(value = "/chat/public/send")
+    public PublicChat chatPublic(@RequestParam("content") String content, @AuthenticationPrincipal UserDetails user) {
+        return chatService.chatPublic(content, user.getUsername());
+    }
+
+    @GetMapping("/chat/public")
+    public Page<PublicChat> getAllPublicChats(@RequestParam(required = false) Pageable pageable) {
+        return chatService.getAllPublicChats(pageable);
     }
 }

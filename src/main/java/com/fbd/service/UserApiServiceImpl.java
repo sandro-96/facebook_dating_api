@@ -74,12 +74,13 @@ public class UserApiServiceImpl implements UserApiService {
     private List<User> filterUsers(List<User> users, String userId, List<String> likedUsers) {
         return users.stream()
                 .filter(user -> !user.getId().equals(userId) && !likedUsers.contains(user.getId()))
+                .peek(user -> user.setEmail(null))
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<User> likedList(String userId) {
         List<String> likedUsers = mongoMatchRepository.findAllByForUserId(userId).stream().map(Match::getCreatedBy).collect(Collectors.toList());
-        return (List<User>) mongoUserRepository.findAllById(likedUsers);
+        return ((List<User>) mongoUserRepository.findAllById(likedUsers)).stream().peek(user -> user.setEmail(null)).collect(Collectors.toList());
     }
 }
