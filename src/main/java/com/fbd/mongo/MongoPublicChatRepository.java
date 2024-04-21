@@ -8,5 +8,5 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 @RepositoryRestResource(collectionResourceRel = "fbd_public_chats", path = "fbd_public_chats")
 public interface MongoPublicChatRepository extends MongoRepository<PublicChat, String> {
-    Page<PublicChat> findAllByOrderByCreatedAtAsc(Pageable pageable);
+    Page<PublicChat> findAllByOrderByCreatedAtDesc(Pageable pageable);
 }

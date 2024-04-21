@@ -60,7 +60,9 @@ public class ChatController {
     }
 
     @GetMapping("/chat/public")
-    public Page<PublicChat> getAllPublicChats(@RequestParam(required = false) Pageable pageable) {
-        return chatService.getAllPublicChats(pageable);
+    public Page<PublicChat> getAllPublicChats(@RequestParam(required = false) String page,
+                                              @RequestParam(required = false) String size) {
+
+        return chatService.getAllPublicChats(Pageable.ofSize(Integer.parseInt(size)).withPage(Integer.parseInt(page)));
     }
 }

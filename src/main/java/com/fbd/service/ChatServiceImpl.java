@@ -76,7 +76,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     public Page<PublicChat> getAllPublicChats(Pageable pageable) {
-        return mongoPublicChatRepository.findAllByOrderByCreatedAtAsc(pageable);
+        return mongoPublicChatRepository.findAllByOrderByCreatedAtDesc(pageable);
     }
 
     public PublicChat chatPublic(String content, String userId) {
