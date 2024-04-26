@@ -14,7 +14,7 @@ public class ScheduledTasks {
     @Scheduled(cron = "0 0 0 * * ?")
     public void runEverydayAt12PM() {
         // delete all match from match collection
-        matchService.deleteAllMatches();
+        // matchService.deleteAllMatches();
         matchService.deleteAllMatchTurn();
     }
 }
