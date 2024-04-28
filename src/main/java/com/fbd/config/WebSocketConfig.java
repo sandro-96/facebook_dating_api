@@ -18,6 +18,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws").setAllowedOrigins("http://localhost:3000", "http://ec2-18-143-92-57.ap-southeast-1.compute.amazonaws.com:3000").withSockJS();
+        registry.addEndpoint("/ws").setAllowedOrigins("http://localhost:3000", "http://ec2-13-212-216-146.ap-southeast-1.compute.amazonaws.com:3000").withSockJS();
     }
 }
