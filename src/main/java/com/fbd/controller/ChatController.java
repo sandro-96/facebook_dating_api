@@ -30,13 +30,17 @@ public class ChatController {
         this.chatService = chatService;
     }
 
-    @GetMapping("/chat/messages/ordered/{topicId}")
-    public List<ChatMessage> getAllMessagesByTopicIdOrderByCreatedAt(@PathVariable String topicId, @AuthenticationPrincipal UserDetails user) {
-        return chatService.getAllMessagesByTopicIdOrderByCreatedAt(topicId, user.getUsername());
+    @GetMapping("/chat/messages/{topicId}")
+    public Page<ChatMessage> getAllMessagesByTopicId(
+                                                    @PathVariable String topicId,
+                                                     @AuthenticationPrincipal UserDetails user,
+                                                     @RequestParam(required = false) String page,
+                                                     @RequestParam(required = false) String size) {
+        return chatService.getMessagesByTopicId(Pageable.ofSize(Integer.parseInt(size)).withPage(Integer.parseInt(page)), topicId, user.getUsername());
     }
 
     @PostMapping(value = "/chat", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public void send(@RequestPart(value = "file", required = false) MultipartFile file,
+    public ChatMessage send(@RequestPart(value = "file", required = false) MultipartFile file,
                      @RequestParam("forUserId") String forUserId,
                      @RequestParam("topicId") String topicId,
                      @RequestParam("content") String content) {
@@ -45,7 +49,7 @@ public class ChatController {
         chatForm.setForUserId(forUserId);
         chatForm.setTopicId(topicId);
         chatForm.setContent(content);
-        chatService.sendMessage(chatForm);
+        return chatService.sendMessage(chatForm);
     }
 
     @GetMapping("/chat/image/{imageName}")

@@ -6,5 +6,5 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface ChatService {
 
-    void sendMessage(ChatForm chatForm);
+    ChatMessage sendMessage(ChatForm chatForm);
 }

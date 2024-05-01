@@ -3,6 +3,8 @@ package com.fbd.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Date;
+
 @Setter
 @Getter
 public class SocketDto {
@@ -12,4 +14,5 @@ public class SocketDto {
     private String imagePath;
     private String type;
     private String createdBy;
+    private Date createdAt;
 }

@@ -46,7 +46,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public void sendMessage(ChatForm chatForm) {
+    public ChatMessage sendMessage(ChatForm chatForm) {
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setForUserId(chatForm.getForUserId());
         chatMessage.setTopicId(chatForm.getTopicId());
@@ -70,9 +70,10 @@ public class ChatServiceImpl implements ChatService {
                 throw new RuntimeException("Failed to store image file", e);
             }
         }
-        mongoChatRepository.save(chatMessage);
-        SocketDto socketDto = createSocketDto(chatMessage);
+        ChatMessage message = mongoChatRepository.save(chatMessage);
+        SocketDto socketDto = createSocketDto(message);
         sendSocketMessage(socketDto);
+        return  message;
     }
 
     public Page<PublicChat> getAllPublicChats(Pageable pageable) {
@@ -104,9 +105,9 @@ public class ChatServiceImpl implements ChatService {
         }
     }
 
-    public List<ChatMessage> getAllMessagesByTopicIdOrderByCreatedAt(String topicId, String currentUser) {
+    public Page<ChatMessage> getMessagesByTopicId(Pageable pageable, String topicId, String currentUser) {
         mongoUnreadTopicRepository.deleteByTopicIdAndUserId(topicId, currentUser);
-        return mongoChatRepository.findByTopicIdOrderByCreatedAtAsc(topicId);
+        return mongoChatRepository.findByTopicIdOrderByCreatedAtDesc(topicId, pageable);
     }
 
     private SocketDto createSocketDto(ChatMessage chatMessage) {
@@ -117,6 +118,7 @@ public class ChatServiceImpl implements ChatService {
         socketDto.setContent(chatMessage.getContent());
         socketDto.setCreatedBy(chatMessage.getCreatedBy());
         socketDto.setImagePath(chatMessage.getImagePath());
+        socketDto.setCreatedAt(chatMessage.getCreatedAt());
         return socketDto;
     }
 
