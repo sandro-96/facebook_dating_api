@@ -79,7 +79,11 @@ public class ChatServiceImpl implements ChatService {
     }
 
     public Page<PublicChat> getAllPublicChats(Pageable pageable) {
-        return mongoPublicChatRepository.findAllByOrderByCreatedAtDesc(pageable);
+        Page<PublicChat> messagesPage = mongoPublicChatRepository.findAllByOrderByCreatedAtDesc(pageable);
+        List<PublicChat> messages = new ArrayList<>(messagesPage.getContent());
+        Collections.reverse(messages);
+        Page<PublicChat> reversedMessagesPage = new PageImpl<>(messages, pageable, messagesPage.getTotalElements());
+        return reversedMessagesPage;
     }
 
     public PublicChat chatPublic(String content, String userId) {
