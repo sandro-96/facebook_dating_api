@@ -10,6 +10,8 @@ import com.fbd.mongo.MongoUserRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -40,10 +42,10 @@ public class UserApiServiceImpl implements UserApiService {
     }
 
     @Override
-    public List<User> list(String userId) {
-        List<String> likedUsers = getLikedUsers(userId);
-        List<User> list = getUsersBasedOnFilterOption(userId);
-        return filterUsers(list, userId, likedUsers);
+    public Page<User> list(Pageable pageable, String userId) {
+        List<String> notIncludeUsers = getLikedUsers(userId);
+        notIncludeUsers.add(userId);
+        return getUsersBasedOnFilterOption(pageable, userId, notIncludeUsers);
     }
 
     private List<String> getLikedUsers(String userId) {
@@ -64,23 +66,16 @@ public class UserApiServiceImpl implements UserApiService {
         return likedUsersCreatedBy;
     }
 
-    private List<User> getUsersBasedOnFilterOption(String userId) {
+    private Page<User> getUsersBasedOnFilterOption(Pageable pageable, String userId, List<String> notIncludeUsers) {
         Optional<FilterOption> option = mongoFilterOptionRepository.findByUserId(userId);
         return option.isPresent() && option.get().getGender() != null ?
-                mongoUserRepository.findAllByGender(option.get().getGender()) :
-                mongoUserRepository.findAll();
-    }
-
-    private List<User> filterUsers(List<User> users, String userId, List<String> likedUsers) {
-        return users.stream()
-                .filter(user -> !user.getId().equals(userId) && !likedUsers.contains(user.getId()))
-                .peek(user -> user.setEmail(null))
-                .collect(Collectors.toList());
+                mongoUserRepository.findAllByGenderAndIdNotIn(option.get().getGender(), notIncludeUsers , pageable) :
+                mongoUserRepository.findAllByIdNotIn(notIncludeUsers, pageable);
     }
 
     @Override
     public List<User> likedList(String userId) {
         List<String> likedUsers = mongoMatchRepository.findAllByForUserId(userId).stream().map(Match::getCreatedBy).collect(Collectors.toList());
-        return ((List<User>) mongoUserRepository.findAllById(likedUsers)).stream().peek(user -> user.setEmail(null)).collect(Collectors.toList());
+        return (List<User>) mongoUserRepository.findAllById(likedUsers);
     }
 }
