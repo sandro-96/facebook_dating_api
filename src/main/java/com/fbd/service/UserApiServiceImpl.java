@@ -11,7 +11,11 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,6 +37,8 @@ public class UserApiServiceImpl implements UserApiService {
     @Autowired
     @Lazy
     private final MongoTopicRepository mongoTopicRepository;
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     public UserApiServiceImpl(MongoUserRepository mongoUserRepository, MongoFilterOptionRepository mongoFilterOptionRepository, MongoMatchRepository mongoMatchRepository, MongoTopicRepository mongoTopicRepository) {
         this.mongoUserRepository = mongoUserRepository;
@@ -66,11 +72,32 @@ public class UserApiServiceImpl implements UserApiService {
         return likedUsersCreatedBy;
     }
 
+    /*private Page<User> getUsersBasedOnFilterOption(Pageable pageable, String userId, List<String> notIncludeUsers) {
+
+        Optional<FilterOption> option = mongoFilterOptionRepository.findByUserId(userId);
+        if (!option.isPresent()) {
+            return mongoUserRepository.findAllByIdNotIn(notIncludeUsers, pageable);
+        } else {
+            FilterOption filterOption = option.get();
+            if (filterOption.getGender() == null) return mongoUserRepository.findAllByIdNotIn(notIncludeUsers, pageable);
+            return mongoUserRepository.findAllByGenderAndIdNotIn(option.get().getGender(), notIncludeUsers , pageable);
+        }
+    }*/
+
     private Page<User> getUsersBasedOnFilterOption(Pageable pageable, String userId, List<String> notIncludeUsers) {
         Optional<FilterOption> option = mongoFilterOptionRepository.findByUserId(userId);
-        return option.isPresent() && option.get().getGender() != null ?
-                mongoUserRepository.findAllByGenderAndIdNotIn(option.get().getGender(), notIncludeUsers , pageable) :
-                mongoUserRepository.findAllByIdNotIn(notIncludeUsers, pageable);
+        Query query = new Query();
+        query.addCriteria(Criteria.where("id").nin(notIncludeUsers));
+        if (option.isPresent()) {
+            FilterOption filterOption = option.get();
+            if (filterOption.getGender() != null) {
+                query.addCriteria(Criteria.where("gender").is(filterOption.getGender()));
+            }
+            query.addCriteria(Criteria.where("age").gte(filterOption.getMinAge()).lte(filterOption.getMaxAge()));
+        }
+        query.with(pageable);
+        List<User> users = mongoTemplate.find(query, User.class);
+        return new PageImpl<>(users, pageable, mongoTemplate.count(query, User.class));
     }
 
     @Override

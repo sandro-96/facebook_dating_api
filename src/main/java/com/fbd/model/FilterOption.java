@@ -23,6 +23,10 @@ public class FilterOption {
     private String id;
     private String userId;
     private String gender;
+    @Builder.Default
+    private int minAge = 0;
+    @Builder.Default
+    private int maxAge = 60;
     private int distance;
     @CreatedDate
     private Date createdAt;

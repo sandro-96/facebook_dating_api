@@ -9,6 +9,7 @@ import org.springframework.data.annotation.*;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -27,6 +28,7 @@ public class User {
     private String gender;
     private String bio;
     private String avatar;
+    private int age;
     @Builder.Default
     private Boolean isFirstLogin = true;
     @CreatedDate
@@ -36,5 +38,15 @@ public class User {
     @JsonProperty("key")
     public String getKey() {
         return id;
+    }
+
+    public void setBirthYear(int birthYear) {
+        this.birthYear = birthYear;
+        this.age = calculateAge(birthYear);
+    }
+
+    private int calculateAge(int birthYear) {
+        int currentYear = LocalDate.now().getYear();
+        return currentYear - birthYear;
     }
 }
