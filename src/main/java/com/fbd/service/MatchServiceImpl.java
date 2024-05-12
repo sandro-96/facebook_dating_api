@@ -51,4 +51,8 @@ public class MatchServiceImpl implements MatchService {
     public void deleteAllMatchTurn() {
         mongoMatchTurnRepository.deleteAll();
     }
+
+    public void deleteMatch(String user1Id, String user2Id) {
+        mongoMatchRepository.deleteByCreatedByAndForUserId(user1Id, user2Id);
+    }
 }

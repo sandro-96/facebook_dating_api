@@ -5,6 +5,7 @@ import com.fbd.service.MatchServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,5 +26,10 @@ public class MatchController {
     @GetMapping(value = "/matched_count")
     public int matchedCount(@AuthenticationPrincipal UserDetails user) {
         return matchService.matchedCount(user.getUsername());
+    }
+
+    @DeleteMapping(value = "/delete")
+    public void deleteMatch(@AuthenticationPrincipal UserDetails user, String createdBy) {
+        matchService.deleteMatch(createdBy, user.getUsername());
     }
 }
