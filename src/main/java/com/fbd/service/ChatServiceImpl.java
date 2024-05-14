@@ -25,10 +25,7 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class ChatServiceImpl implements ChatService {
@@ -122,6 +119,7 @@ public class ChatServiceImpl implements ChatService {
 
     private SocketDto createSocketDto(ChatMessage chatMessage) {
         SocketDto socketDto = new SocketDto();
+        socketDto.setId(chatMessage.getId());
         socketDto.setType(Constant.WebSocket.SOCKET_CHAT_UPDATE);
         socketDto.setTopicId(chatMessage.getTopicId());
         socketDto.setForUserId(chatMessage.getForUserId());
@@ -129,7 +127,26 @@ public class ChatServiceImpl implements ChatService {
         socketDto.setCreatedBy(chatMessage.getCreatedBy());
         socketDto.setImagePath(chatMessage.getImagePath());
         socketDto.setCreatedAt(chatMessage.getCreatedAt());
+        socketDto.setEmoji(chatMessage.getEmoji());
         return socketDto;
+    }
+
+    public ChatMessage updateEmoji(String messageId, Integer emoji) {
+        Optional<ChatMessage> optionalChatMessage = mongoChatRepository.findById(messageId);
+        if (optionalChatMessage.isPresent()) {
+            ChatMessage chatMessage = optionalChatMessage.get();
+            chatMessage.setEmoji(emoji);
+            ChatMessage message = mongoChatRepository.save(chatMessage);
+
+            Map<String, Object> source = new HashMap<>();
+            source.put("type", Constant.WebSocket.SOCKET_CHAT_EMOJI);
+            source.put("data", message);
+            template.convertAndSend("/queue/messages", source);
+
+            return message;
+        } else {
+            throw new RuntimeException("Message not found with id " + messageId);
+        }
     }
 
     private void sendSocketMessage(SocketDto socketDto) {

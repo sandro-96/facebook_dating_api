@@ -69,4 +69,10 @@ public class ChatController {
 
         return chatService.getAllPublicChats(Pageable.ofSize(Integer.parseInt(size)).withPage(Integer.parseInt(page)));
     }
+
+    @PutMapping("/chat/message/{messageId}/emoji")
+    public ChatMessage updateEmoji(@PathVariable String messageId, @RequestBody Map<String, String> body) {
+        Integer emoji = Integer.valueOf(body.get("emoji"));
+        return chatService.updateEmoji(messageId, emoji);
+    }
 }
