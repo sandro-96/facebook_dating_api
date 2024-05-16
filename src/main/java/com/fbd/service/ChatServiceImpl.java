@@ -121,6 +121,7 @@ public class ChatServiceImpl implements ChatService {
         SocketDto socketDto = new SocketDto();
         socketDto.setId(chatMessage.getId());
         socketDto.setType(Constant.WebSocket.SOCKET_CHAT_UPDATE);
+        socketDto.setLastMessage(chatMessage);
         socketDto.setTopicId(chatMessage.getTopicId());
         socketDto.setForUserId(chatMessage.getForUserId());
         socketDto.setContent(chatMessage.getContent());

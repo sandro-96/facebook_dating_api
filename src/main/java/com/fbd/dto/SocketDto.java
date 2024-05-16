@@ -1,5 +1,6 @@
 package com.fbd.dto;
 
+import com.fbd.model.ChatMessage;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,6 +16,7 @@ public class SocketDto {
     private String imagePath;
     private String type;
     private String createdBy;
+    private ChatMessage lastMessage;
     private int emoji = 0;
     private Date createdAt;
 }

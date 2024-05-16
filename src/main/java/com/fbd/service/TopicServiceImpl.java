@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -59,11 +60,11 @@ public class TopicServiceImpl implements TopicService {
         Optional<Topic> topic = mongoTopicRepository.findById(id);
         topic.ifPresent(value -> {
             mongoTopicRepository.delete(value);
-            SocketDto socketDto = new SocketDto();
-            socketDto.setType(Constant.WebSocket.SOCKET_TOPIC_DELETE);
-            socketDto.setTopicId(value.getId());
-            socketDto.setForUserId(value.getForUserId(userId));
-            template.convertAndSend("/queue/messages", socketDto);
+            Map<String, Object> source = new HashMap<>();
+            source.put("type", Constant.WebSocket.SOCKET_TOPIC_DELETE);
+            source.put("forUserId", value.getForUserId(userId));
+            source.put("data", value);
+            sendSocketMessage(source);
         });
     }
 
@@ -77,8 +78,12 @@ public class TopicServiceImpl implements TopicService {
         Topic topic = createNewTopic(user1, user2, description);
         Topic savedTopic = addTopic(topic);
         mongoMatchRepository.deleteByCreatedByAndForUserId(forUserId, userId);
-        SocketDto socketDto = createSocketDto(savedTopic.getId(), forUserId, userId);
-        sendSocketMessage(socketDto);
+        Map<String, Object> source = new HashMap<>();
+        source.put("type", Constant.WebSocket.SOCKET_TOPIC_NEW);
+        source.put("forUserId", forUserId);
+        source.put("data", savedTopic);
+        savedTopic.setUnread(true);
+        sendSocketMessage(source);
         return savedTopic;
     }
 
@@ -118,7 +123,7 @@ public class TopicServiceImpl implements TopicService {
         return socketDto;
     }
 
-    private void sendSocketMessage(SocketDto socketDto) {
-        template.convertAndSend("/queue/messages", socketDto);
+    private void sendSocketMessage(Map<String, Object> source) {
+        template.convertAndSend("/queue/messages", source);
     }
 }
