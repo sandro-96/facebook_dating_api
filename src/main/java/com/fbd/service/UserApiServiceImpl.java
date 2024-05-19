@@ -13,6 +13,9 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Metrics;
+import org.springframework.data.geo.Point;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -104,5 +107,22 @@ public class UserApiServiceImpl implements UserApiService {
     public List<User> likedList(String userId) {
         List<String> likedUsers = mongoMatchRepository.findAllByForUserId(userId).stream().map(Match::getCreatedBy).collect(Collectors.toList());
         return (List<User>) mongoUserRepository.findAllById(likedUsers);
+    }
+
+    public User locationUpdate(String userId, double latitude, double longitude) {
+        User user = mongoUserRepository.findById(userId).orElse(null);
+        assert user != null;
+        Point userLocation = new Point(longitude, latitude);
+        user.setPoint(userLocation);
+        return mongoUserRepository.save(user);
+    }
+
+    public List<User> findNearbyUsers(double longitude, double latitude) {
+        Point userLocation = new Point(longitude, latitude);
+        Distance distance = new Distance(30, Metrics.KILOMETERS);
+        Query query = new Query();
+        query.addCriteria(Criteria.where("point").nearSphere(userLocation).maxDistance(distance.getNormalizedValue()));
+        List<User> users = mongoTemplate.find(query, User.class);
+        return users;
     }
 }

@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.*;
+import org.springframework.data.geo.Point;
+import org.springframework.data.mongodb.core.index.GeoSpatialIndexed;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -28,6 +30,8 @@ public class User {
     private String gender;
     private String bio;
     private String avatar;
+    @GeoSpatialIndexed
+    private Point point;
     private int age;
     @Builder.Default
     private Boolean isFirstLogin = true;
