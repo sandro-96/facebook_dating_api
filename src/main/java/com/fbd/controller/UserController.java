@@ -40,7 +40,12 @@ public class UserController {
     }
 
     @GetMapping("/nearbyUsers")
-    public List<User> findNearbyUsers(@RequestParam double longitude, @RequestParam double latitude) {
-        return userApiService.findNearbyUsers(longitude, latitude);
+    public Page<User> findNearbyUsers(@RequestParam double longitude,
+                                      @RequestParam double latitude,
+                                      @AuthenticationPrincipal UserDetails user,
+                                      @RequestParam(required = false) String page,
+                                      @RequestParam(required = false) String size
+    ) {
+        return userApiService.findNearbyUsers(longitude, latitude, user.getUsername(), Pageable.ofSize(Integer.parseInt(size)).withPage(Integer.parseInt(page)));
     }
 }

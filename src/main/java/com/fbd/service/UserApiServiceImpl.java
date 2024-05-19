@@ -117,12 +117,15 @@ public class UserApiServiceImpl implements UserApiService {
         return mongoUserRepository.save(user);
     }
 
-    public List<User> findNearbyUsers(double longitude, double latitude) {
+    public Page<User> findNearbyUsers(double longitude, double latitude, String userId, Pageable pageable) {
         Point userLocation = new Point(longitude, latitude);
         Distance distance = new Distance(30, Metrics.KILOMETERS);
         Query query = new Query();
+        query.addCriteria(Criteria.where("id").ne(userId));
         query.addCriteria(Criteria.where("point").nearSphere(userLocation).maxDistance(distance.getNormalizedValue()));
+        query.with(pageable);
         List<User> users = mongoTemplate.find(query, User.class);
-        return users;
+        long total = mongoTemplate.count(query, User.class);
+        return new PageImpl<>(users, pageable, total);
     }
 }
