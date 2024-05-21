@@ -123,9 +123,9 @@ public class UserApiServiceImpl implements UserApiService {
         Query query = new Query();
         query.addCriteria(Criteria.where("id").ne(userId));
         query.addCriteria(Criteria.where("point").nearSphere(userLocation).maxDistance(distance.getNormalizedValue()));
+        long total = mongoTemplate.count(query, User.class);
         query.with(pageable);
         List<User> users = mongoTemplate.find(query, User.class);
-        long total = mongoTemplate.count(query, User.class);
         return new PageImpl<>(users, pageable, total);
     }
 }
