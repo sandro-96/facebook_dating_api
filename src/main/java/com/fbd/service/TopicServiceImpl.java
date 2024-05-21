@@ -62,7 +62,7 @@ public class TopicServiceImpl implements TopicService {
             mongoTopicRepository.delete(value);
             Map<String, Object> source = new HashMap<>();
             source.put("type", Constant.WebSocket.SOCKET_TOPIC_DELETE);
-            source.put("forUserId", value.getForUserId(userId));
+            source.put("forUserId", userId.equals(value.getUser1().getId()) ? value.getUser2().getId() : value.getUser1().getId());
             source.put("data", value);
             sendSocketMessage(source);
         });

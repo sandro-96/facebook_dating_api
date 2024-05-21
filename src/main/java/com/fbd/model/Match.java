@@ -19,6 +19,8 @@ public class Match {
     @Id
     private String id;
     private String forUserId;
+    @Builder.Default
+    private Boolean isFromNearby = false;
     @CreatedDate
     private Date createdAt;
     @LastModifiedDate

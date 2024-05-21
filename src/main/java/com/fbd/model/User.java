@@ -35,6 +35,8 @@ public class User {
     private int age;
     @Builder.Default
     private Boolean isFirstLogin = true;
+    @Builder.Default
+    private Boolean isLikeDisable = false;
     @CreatedDate
     private Date createdAt;
     @LastModifiedDate

@@ -33,19 +33,21 @@ public class BeforeMongoMatchListener extends AbstractMongoEventListener<Match> 
     @Override
     public void onAfterSave(AfterSaveEvent<Match> event) {
         Match match = event.getSource();
-        Optional<MatchTurn> matchTurnOptional = mongoMatchTurnRepository.findByUserId(match.getCreatedBy());
-        MatchTurn matchTurn;
-        if (matchTurnOptional.isPresent()) {
-            matchTurn = matchTurnOptional.get();
-            matchTurn.setTurn(matchTurn.getTurn() + 1);
-        } else {
-            matchTurn = MatchTurn.builder().userId(match.getCreatedBy()).turn(1).build();
+        if (!match.getIsFromNearby()) {
+            Optional<MatchTurn> matchTurnOptional = mongoMatchTurnRepository.findByUserId(match.getCreatedBy());
+            MatchTurn matchTurn;
+            if (matchTurnOptional.isPresent()) {
+                matchTurn = matchTurnOptional.get();
+                matchTurn.setTurn(matchTurn.getTurn() + 1);
+            } else {
+                matchTurn = MatchTurn.builder().userId(match.getCreatedBy()).turn(1).build();
+            }
+            mongoMatchTurnRepository.save(matchTurn);
         }
-        mongoMatchTurnRepository.save(matchTurn);
         Map<String, Object> source = new HashMap<>();
         source.put("type", Constant.WebSocket.SOCKET_MATCH_UPDATE);
         source.put("forUserId", match.getForUserId());
-        User user = mongoUserRepository.findById(match.getForUserId()).get();
+        User user = mongoUserRepository.findById(match.getCreatedBy()).get();
         source.put("data", user);
         template.convertAndSend("/queue/messages", source);
         super.onAfterSave(event);

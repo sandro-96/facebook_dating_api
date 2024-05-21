@@ -126,6 +126,12 @@ public class UserApiServiceImpl implements UserApiService {
         long total = mongoTemplate.count(query, User.class);
         query.with(pageable);
         List<User> users = mongoTemplate.find(query, User.class);
+        List<String> notIncludeUsers = getLikedUsers(userId);
+        users.forEach(user -> {
+            if (notIncludeUsers.contains(user.getId())) {
+                user.setIsLikeDisable(true);
+            }
+        });
         return new PageImpl<>(users, pageable, total);
     }
 }
