@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -118,11 +119,20 @@ public class UserApiServiceImpl implements UserApiService {
     }
 
     public Page<User> findNearbyUsers(double longitude, double latitude, String userId, Pageable pageable) {
+        Optional<FilterOption> option = mongoFilterOptionRepository.findByUserId(userId);
         Point userLocation = new Point(longitude, latitude);
-        Distance distance = new Distance(30, Metrics.KILOMETERS);
+        AtomicReference<Distance> distance = new AtomicReference<>(new Distance(30, Metrics.KILOMETERS));
         Query query = new Query();
+        option.ifPresent(filterOption -> {
+            if (filterOption.getDistance() != 0) {
+                distance.set(new Distance(filterOption.getDistance(), Metrics.KILOMETERS));
+            }
+            if (filterOption.getGender() != null) {
+                query.addCriteria(Criteria.where("gender").is(filterOption.getGender()));
+            }
+        });
         query.addCriteria(Criteria.where("id").ne(userId));
-        query.addCriteria(Criteria.where("point").nearSphere(userLocation).maxDistance(distance.getNormalizedValue()));
+        query.addCriteria(Criteria.where("point").nearSphere(userLocation).maxDistance(distance.get().getNormalizedValue()));
         long total = mongoTemplate.count(query, User.class);
         query.with(pageable);
         List<User> users = mongoTemplate.find(query, User.class);

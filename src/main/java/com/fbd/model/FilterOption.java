@@ -27,7 +27,8 @@ public class FilterOption {
     private int minAge = 0;
     @Builder.Default
     private int maxAge = 60;
-    private int distance;
+    @Builder.Default
+    private int distance = 30;
     @CreatedDate
     private Date createdAt;
     @LastModifiedDate
