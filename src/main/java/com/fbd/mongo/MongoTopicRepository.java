@@ -11,4 +11,6 @@ import java.util.List;
 public interface MongoTopicRepository extends MongoRepository<Topic, String> {
     @Query("{'$or': [{'user1.id': ?0}, {'user2.id': ?0}]}")
     List<Topic> findByUser1_IdOrUser2_Id(String userId);
+
+
 }
