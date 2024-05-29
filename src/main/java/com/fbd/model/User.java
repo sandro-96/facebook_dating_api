@@ -1,5 +1,6 @@
 package com.fbd.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,6 +25,7 @@ public class User {
     private String id;
     private String username;
     @Indexed(name = "email_user_index_unique", unique = true)
+    @JsonIgnore
     private String email;
     private int birthYear;
     private String location;
@@ -37,6 +39,8 @@ public class User {
     private Boolean isFirstLogin = true;
     @Builder.Default
     private Boolean isLikeDisable = false;
+    @Builder.Default
+    private Boolean isFromNearby = false;
     @CreatedDate
     private Date createdAt;
     @LastModifiedDate

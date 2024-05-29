@@ -106,8 +106,21 @@ public class UserApiServiceImpl implements UserApiService {
 
     @Override
     public List<User> likedList(String userId) {
-        List<String> likedUsers = mongoMatchRepository.findAllByForUserId(userId).stream().map(Match::getCreatedBy).collect(Collectors.toList());
-        return (List<User>) mongoUserRepository.findAllById(likedUsers);
+        List<Match> matches = mongoMatchRepository.findAllByForUserId(userId);
+        List<String> likedUsers = matches.stream()
+                .map(Match::getCreatedBy)
+                .collect(Collectors.toList());
+
+        List<String> nearByUsers = matches.stream()
+                .filter(Match::getIsFromNearby)
+                .map(Match::getCreatedBy)
+                .collect(Collectors.toList());
+
+        List<User> users = (List<User>) mongoUserRepository.findAllById(likedUsers);
+
+        users.forEach(user -> user.setIsFromNearby(nearByUsers.contains(user.getId())));
+
+        return users;
     }
 
     public User locationUpdate(String userId, double latitude, double longitude) {
